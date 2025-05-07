@@ -32,14 +32,12 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
       - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
-      - SUPABASE_PASSWORD=${SUPABASE_PASSWORD:-root}
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}" ]
       interval: 5s
       timeout: 5s
       retries: 12
     volumes:
-      - ./migrations/before:/docker-entrypoint-initdb.d
       - postgres_data:/var/lib/postgresql/data
 
   redis:
@@ -63,7 +61,10 @@ services:
     environment:
       # There are a lot of options to configure GoTrue. You can reference the example config:
       # https://github.com/supabase/auth/blob/master/example.env
+      # The initial GoTrue Admin user to create, if not already exists.
       - GOTRUE_ADMIN_EMAIL=${GOTRUE_ADMIN_EMAIL}
+      # The initial GoTrue Admin user password to create, if not already exists.
+      # If the user already exists, the update will be skipped.
       - GOTRUE_ADMIN_PASSWORD=${GOTRUE_ADMIN_PASSWORD}
       - GOTRUE_DISABLE_SIGNUP=${GOTRUE_DISABLE_SIGNUP:-true}
       - GOTRUE_SITE_URL=appflowy-flutter://                           # redirected to AppFlowy application
@@ -119,9 +120,6 @@ services:
       - APPFLOWY_GOTRUE_JWT_SECRET=${GOTRUE_JWT_SECRET}
       - APPFLOWY_GOTRUE_JWT_EXP=${GOTRUE_JWT_EXP}
       - APPFLOWY_GOTRUE_BASE_URL=${APPFLOWY_GOTRUE_BASE_URL}
-      - APPFLOWY_GOTRUE_EXT_URL=${API_EXTERNAL_URL}
-      - APPFLOWY_GOTRUE_ADMIN_EMAIL=${GOTRUE_ADMIN_EMAIL}
-      - APPFLOWY_GOTRUE_ADMIN_PASSWORD=${GOTRUE_ADMIN_PASSWORD}
       - APPFLOWY_S3_CREATE_BUCKET=${APPFLOWY_S3_CREATE_BUCKET}
       - APPFLOWY_S3_USE_MINIO=${APPFLOWY_S3_USE_MINIO}
       - APPFLOWY_S3_MINIO_URL=${APPFLOWY_S3_MINIO_URL}
@@ -141,7 +139,6 @@ services:
       - AI_SERVER_HOST=${AI_SERVER_HOST}
       - AI_SERVER_PORT=${AI_SERVER_PORT}
       - AI_OPENAI_API_KEY=${AI_OPENAI_API_KEY}
-      - APPFLOWY_ADMIN_FRONTEND_PATH_PREFIX=${ADMIN_FRONTEND_PATH_PREFIX}
       - APPFLOWY_WEB_URL=${APPFLOWY_WEB_URL}
     build:
       context: .
